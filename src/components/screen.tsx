@@ -32,21 +32,28 @@ const Screen = (props: ScreenProps): JSX.Element => {
     const [newScore, setNewScore] = React.useState<string>("0");
 
     // Updates local score input
-    const onScoreChange = (e: { target: HTMLInputElement }) => {
+    const onScoreChange = (e: { target: HTMLInputElement }, activeFrame: number, pinsRemaining: number) => {
         const val = parseInt(e.target.value);
         
         // Get the active frame and the cururent score of the frame
-        const frame = state.game.activeFrame;
+        const frame = activeFrame;
 
         // Dont allow inputs if there is no active frame
         if (frame >= 0) {
-            const maxScore = Math.min(10, state.game.pinsRemaining);
+            const maxScore = Math.min(10, pinsRemaining);
             setNewScore(val < 0? maxScore.toString(): val > maxScore? "0": e.target.value);
         }
     }
 
     // Pushes local score input to game board
     const addScore = () => {
+
+        // Don't add if the game is complete!
+        if (state.game.isComplete) {
+            alert("The game is already complete. Reset to start a new game.");
+            return;
+        }
+
         setNewScore("0");
         dispatch({ type: "add", score: parseInt(newScore, 0) });
     };
@@ -70,7 +77,8 @@ const Screen = (props: ScreenProps): JSX.Element => {
             return { totalPins, maxN, maxScore }
     }
 
-    const getFrameScores = (game: Global.Game): Array<FrameData> => {
+    const parseFrames = (game: Global.Game): 
+        {frames: Array<FrameData>, activeFrame: number, pinsRemaining: number} => {
 
         let frames: Array<FrameData> = Array.from(new Array(10), (_, i) => ({ 
             frameIndex: i,
@@ -90,7 +98,7 @@ const Screen = (props: ScreenProps): JSX.Element => {
             let { totalPins, maxN, maxScore } = _getDenseFrameData(frames, activeFrame);
 
             // Can this score fit in the current active frame?
-            if ((totalPins + newPins > maxScore 
+            if ((totalPins >= maxScore || totalPins + newPins > maxScore 
                 || currFrame.scores.length + 1 > maxN) && activeFrame < 9) {
                 activeFrame++;
             }
@@ -106,7 +114,7 @@ const Screen = (props: ScreenProps): JSX.Element => {
             }
 
             // If we have a spare (note that frame 10 cant reach here!)
-            if (frames[activeFrame].scores.length === 2)
+            else if (frames[activeFrame].scores.length === 2)
                 runningTotal += newPins + (game.scores[i+1] ?? 0);
 
             // Else it must be a strike
@@ -117,11 +125,19 @@ const Screen = (props: ScreenProps): JSX.Element => {
 
         }
 
-        return frames;
+        // Finally, see if the active frame is full and determine the pins remaining
+        const { totalPins, maxN, maxScore } = _getDenseFrameData(frames, activeFrame);
+        let pinsRemaining = Math.min(10, maxScore - totalPins);
+        if (totalPins >= maxScore || frames[activeFrame].scores.length >= maxN) {
+            activeFrame++;
+            pinsRemaining = 10;
+        }
+
+        return { frames, activeFrame, pinsRemaining };
     }
 
-    // Aggregate our scores into frames
-    const frames = getFrameScores(state.game);
+    // Compute frames, activeFrame, and pins remaining fresh during each render
+    const { frames, activeFrame, pinsRemaining } = parseFrames(state.game);
 
     return (
 
@@ -166,7 +182,11 @@ const Screen = (props: ScreenProps): JSX.Element => {
                                     Add score
                             </p>
 
-                            <Input style={{width: '40px'}} value={newScore? newScore: ""} onChange={onScoreChange} />
+                            <Input 
+                                style={{width: '40px'}} 
+                                value={newScore? newScore: ""} 
+                                onChange={(e) => onScoreChange(e, activeFrame, pinsRemaining)} 
+                            />
 
                         </div>
 

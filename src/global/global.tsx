@@ -6,9 +6,7 @@ export declare namespace Global {
 
         name: string,
         scores: Array<number>,
-        isComplete: boolean,
-        activeFrame: number,
-        pinsRemaining: number
+        isComplete: boolean
 
     }
 
