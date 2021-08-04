@@ -88,7 +88,7 @@ const Frame = (props: FrameProps): JSX.Element => {
 
             {/* Show the total frame score below */}
             <div style={{height: '20px'}}>
-                {props.frameScore}
+                {props.frameScore >= 0? props.frameScore: " "}
             </div>
 
             </>

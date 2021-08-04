@@ -82,7 +82,7 @@ const Screen = (props: ScreenProps): JSX.Element => {
 
         let frames: Array<FrameData> = Array.from(new Array(10), (_, i) => ({ 
             frameIndex: i,
-            frameScore: 0,
+            frameScore: -1,
             scores: [] 
         }));
 
@@ -166,8 +166,13 @@ const Screen = (props: ScreenProps): JSX.Element => {
                         }}>
                             {frames.map((f,i) => 
                                 <div key={i} style={{flexGrow: i === 9? 2: 1,}}>
-                                    {i+1}
+                                    
+                                    {/* Frame number */}
+                                    <p className={i === activeFrame? "screen-form-title": ""}>{i+1}</p>
+
+                                    {/* Frame component */}
                                     <Frame frameScore={f.frameScore} scores={f.scores} frameIndex={i} key={i}/>
+
                                 </div>
                             )}
                         </div>
