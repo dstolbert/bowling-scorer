@@ -1,0 +1,7 @@
+.frame-topRow {
+    display: flex;
+    flex-direction: row;
+    border-width: 0px 0px 1px 0px;
+    border-color: #2a2d34;
+    border-style: solid;
+}

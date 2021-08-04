@@ -4,7 +4,7 @@ import React from 'react';
 import Card from './common/card';
 
 // Styles
-import '../styles/screen.css';
+import '../styles/frame.css';
 
 // Utils
 import { getFrameScores } from '../utils/bowling';
@@ -27,14 +27,7 @@ const Frame = (props: FrameProps): JSX.Element => {
             <>
 
             {/* Show the individual scores up top */}
-            <div style={{
-                display: 'flex',
-                flexDirection: 'row',
-                borderWidth: 0,
-                borderBottomWidth: 1,
-                borderBottomColor: "black",
-                borderStyle: "solid"
-            }}>
+            <div className="frame-topRow">
                 {topRow.map((s,i) => 
                 
                     <div key={i} style={{flexGrow: 1, height: '20px'}}>

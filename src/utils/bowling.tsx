@@ -3,6 +3,8 @@
 
 import { Global } from '../global/global';
 
+
+// Safely adds a new score to the game
 export const addScoreToGame = (game: Global.Game, newScore: number): Global.Game => {
 
     // Write to a fresh game object
@@ -23,51 +25,53 @@ export const addScoreToGame = (game: Global.Game, newScore: number): Global.Game
 
     for (let i=0; i<game.scores.length + 1; i++) {
 
-    const currScore = game.scores[i] ?? newScore;
+        const currScore = i < game.scores.length? game.scores[i]: newScore;
 
-    // Can the score fit on this frame?
-    if (frame.score < frame.maxScore && frame.score + currScore <= frame.maxScore && frame.n + 1 <= frame.maxN) {
+        // Can the score fit on this frame?
+        if (frame.score < frame.maxScore && 
+            frame.score + currScore <= frame.maxScore && 
+            frame.n + 1 <= frame.maxN) {
 
-        // Update current frame
-        frame.score += currScore;
-        frame.n++;
+            // Update current frame
+            frame.score += currScore;
+            frame.n++;
 
-        // If we are on the 10th frame and just scored a spare, update frame
-        if (frame.index === 9 && frame.score >= 10) {
-        frame.maxScore = 30;
-        frame.maxN = 3;
+            // If we are on the 10th frame and just scored a spare, update frame
+            if (frame.index === 9 && frame.score >= 10) {
+            frame.maxScore = 30;
+            frame.maxN = 3;
+            }
+
+            // Update the game. Note: this can allow for > 10 remaining pins in 
+            // the 10th frame, but it's handled by the input :)
+            newGame.scores.push(currScore);
+
         }
 
-        // Update the game. Note: this can allow for > 10 remaining pins in 
-        // the 10th frame, but it's handled by the input :)
-        newGame.scores.push(currScore);
+        else if (frame.index <= 9) {
+
+            // Move the score onto the next frame
+            frame = {
+            index: frame.index+1,
+            score: currScore,
+            maxScore: 10,
+            n: 1,
+            maxN: 2
+            }
+
+            // If we are on the 10th frame and just scored a strike, update frame
+            if (frame.index === 9 && frame.score >= 10) {
+            frame.maxScore = 30;
+            frame.maxN = 3;
+            }
+
+            // Update the game. Note: this can allow for > 10 remaining pins in 
+            // the 10th frame, but it's handled by the input :)
+            newGame.scores.push(currScore);
+
+        }
 
     }
-
-    else if (frame.index <= 9) {
-
-        // Move the score onto the next frame
-        frame = {
-        index: frame.index+1,
-        score: currScore,
-        maxScore: 10,
-        n: 1,
-        maxN: 2
-        }
-
-        // If we are on the 10th frame and just scored a strike, update frame
-        if (frame.index === 9 && frame.score >= 10) {
-        frame.maxScore = 30;
-        frame.maxN = 3;
-        }
-
-        // Update the game. Note: this can allow for > 10 remaining pins in 
-        // the 10th frame, but it's handled by the input :)
-        newGame.scores.push(currScore);
-
-    }
-
-}
 
     // Finally, check if the game is complete!
     if (frame.index >= 9 && frame.n >= frame.maxN)
@@ -96,8 +100,12 @@ const _getDenseFrameData = (frames: Array<FrameData>, index: number):
 }
 
 // Converts game scores into the relevant information needed to display the game
-export const parseFrames = (game: Global.Game): 
-    {frames: Array<FrameData>, activeFrame: number, pinsRemaining: number, total: number} => {
+export const parseFrames = (game: Global.Game): {
+        frames: Array<FrameData>, 
+        activeFrame: number, 
+        pinsRemaining: number, 
+        total: number
+    } => {
 
     let frames: Array<FrameData> = Array.from(new Array(10), (_, i) => ({ 
         frameIndex: i,
@@ -157,7 +165,8 @@ export const parseFrames = (game: Global.Game):
 
 // Converts the scores in a given frame (pins knocked down) into an array of 
 // displayable strings
-export const getFrameScores = (scores: Array<number>, frameIndex: number): Array<string> => {
+export const getFrameScores = (scores: Array<number>, frameIndex: number): 
+    Array<string> => {
 
     // Create a parsed array of values to display on top row of frame
     let topRow: Array<string> = []
@@ -186,7 +195,8 @@ export const getFrameScores = (scores: Array<number>, frameIndex: number): Array
         // If frame has a spare, replace second char with a /
         if (scores.length > 1 && scores[0] < 10 && scores[0] + scores[1] === 10) {
             for (let i=0; i<3; i++) {
-                const s = i === 1? "/": scores[i] === undefined? " ": scores[i] === 10? "X": scores[i].toString();
+                const s = i === 1? "/": scores[i] === undefined? " ": 
+                    scores[i] === 10? "X": scores[i].toString();
                 topRow.push(s);
             }
         }
@@ -194,7 +204,8 @@ export const getFrameScores = (scores: Array<number>, frameIndex: number): Array
         // Else we can just replace all 10's with strikes
         else
             for (let i=0; i< (total >= 10? 3: 2); i++)
-                topRow.push(scores[i] === undefined? " ": scores[i] === 10? "X": scores[i].toString());
+                topRow.push(scores[i] === undefined? " ": scores[i] === 10? "X": 
+                    scores[i].toString());
     }
 
     return topRow;

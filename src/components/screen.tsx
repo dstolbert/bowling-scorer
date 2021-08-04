@@ -69,31 +69,20 @@ const Screen = (props: ScreenProps): JSX.Element => {
         <div className="screen">
             <div className="screen-content">
 
-                <Title className="screen-title">Bowl Master</Title>
+                <Title className="screen-title">Bowling Buddy</Title>
 
-                {/* Credentials form */}
-                <Card className="screen-form">
+                {/* Bowling card */}
+                <Card className="screen-body">
 
-                    <div style={{
-                        width: '100%', 
-                        alignItems: 'center',
-                        display: 'flex', 
-                        flexDirection: 'column',
-                    }}>
+                    <div className="screen-body-content">
 
                         {/* Frames */}
-                        <div style={{
-                            flexDirection: 'row',
-                            display: 'flex',
-                            width: '90%',
-                            marginTop: '20px',
-                            flexGrow: 1,
-                        }}>
+                        <div className="screen-game-board">
                             {frames.map((f,i) => 
-                                <div key={i} style={{flexGrow: i === 9? 2: 1,}}>
+                                <div key={i} style={{flexGrow: i === 9? 2: 1}}>
                                     
                                     {/* Frame number */}
-                                    <p className={i === activeFrame? "screen-form-title": ""}>{i+1}</p>
+                                    <p className={i === activeFrame? "screen-body-title": ""}>{i+1}</p>
 
                                     {/* Frame component */}
                                     <Frame frameScore={f.frameScore} scores={f.scores} frameIndex={i} key={i}/>
@@ -103,16 +92,16 @@ const Screen = (props: ScreenProps): JSX.Element => {
                         </div>
 
                         {/* Add Score */}
-                        <div style={{display: 'flex', flexDirection: 'row', flexGrow: 1, margin: 10}}>
+                        <div className="screen-scores">
 
                             <div style={{display: 'flex', width: '100%', justifyContent: 'center'}}>
-                                <p style={{marginRight: 10}} className="screen-form-title">{"Score"}</p>
+                                <p style={{marginRight: 10}} className="screen-body-title">{"Score"}</p>
                                 <p>{total.toString()}</p>
                             </div>
                             
 
                             <div style={{display: "flex"}}>
-                                <p className="screen-form-title" style={{
+                                <p className="screen-body-title" style={{
                                     marginLeft: 10,
                                     marginRight: 10,
                                     width: '80px'
@@ -134,14 +123,14 @@ const Screen = (props: ScreenProps): JSX.Element => {
                             <Button 
                                 onClick={resetGame} 
                                 style={{marginRight: 20, width: '100px', height: '30px'}} 
-                                className="screen-button">
+                                >
                                     New Game
                             </Button>
 
                             <Button 
                                 onClick={addScore} 
                                 style={{marginBottom: 20, width: '100px', height: '30px'}} 
-                                className="screen-button">
+                                >
                                     Add Score
                             </Button>
 
