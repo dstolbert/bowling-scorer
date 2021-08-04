@@ -40,7 +40,7 @@ const getFrameScores = (scores: Array<number>, frameIndex: number): Array<string
     else {
 
         // If frame has a spare
-        if (scores.length > 1 && scores[0] + scores[1] === 10) {
+        if (scores.length > 1 && scores[0] < 10 && scores[0] + scores[1] === 10) {
 
             for (let i=0; i<3; i++) {
                 const s = i === 1? "/": scores[i] === undefined? " ": scores[i] === 10? "X": scores[i].toString();

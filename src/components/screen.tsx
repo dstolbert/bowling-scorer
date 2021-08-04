@@ -50,7 +50,7 @@ const Screen = (props: ScreenProps): JSX.Element => {
 
         // Don't add if the game is complete!
         if (state.game.isComplete) {
-            alert("The game is already complete. Reset to start a new game.");
+            alert("The game is already complete. Start a new game to continue.");
             return;
         }
 
@@ -133,11 +133,11 @@ const Screen = (props: ScreenProps): JSX.Element => {
             pinsRemaining = 10;
         }
 
-        return { frames, activeFrame, pinsRemaining };
+        return { frames, activeFrame, pinsRemaining, total: runningTotal };
     }
 
     // Compute frames, activeFrame, and pins remaining fresh during each render
-    const { frames, activeFrame, pinsRemaining } = parseFrames(state.game);
+    const { frames, activeFrame, pinsRemaining, total } = parseFrames(state.game);
 
     return (
 
@@ -178,20 +178,29 @@ const Screen = (props: ScreenProps): JSX.Element => {
                         </div>
 
                         {/* Add Score */}
-                        <div style={{display: 'flex', flexGrow: 1, margin: 20}}>
+                        <div style={{display: 'flex', flexDirection: 'row', flexGrow: 1, margin: 10}}>
 
-                            <p className="screen-form-title" style={{
-                                width: "100px",
-                                paddingRight: 4
-                                }}>
-                                    Add score
-                            </p>
+                            <div style={{display: 'flex', width: '100%', justifyContent: 'center'}}>
+                                <p style={{marginRight: 10}} className="screen-form-title">{"Score"}</p>
+                                <p>{total.toString()}</p>
+                            </div>
+                            
 
-                            <Input 
-                                style={{width: '40px'}} 
-                                value={newScore? newScore: ""} 
-                                onChange={(e) => onScoreChange(e, activeFrame, pinsRemaining)} 
-                            />
+                            <div style={{display: "flex"}}>
+                                <p className="screen-form-title" style={{
+                                    marginLeft: 10,
+                                    marginRight: 10,
+                                    width: '80px'
+                                    }}>
+                                        Add pins
+                                </p>
+
+                                <Input 
+                                    style={{width: '40px'}} 
+                                    value={newScore? newScore: ""} 
+                                    onChange={(e) => onScoreChange(e, activeFrame, pinsRemaining)} 
+                                />
+                            </div>
 
                         </div>
 
@@ -201,7 +210,7 @@ const Screen = (props: ScreenProps): JSX.Element => {
                                 onClick={resetGame} 
                                 style={{marginRight: 20, width: '100px', height: '30px'}} 
                                 className="screen-button">
-                                    Reset
+                                    New Game
                             </Button>
 
                             <Button 
