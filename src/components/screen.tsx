@@ -58,7 +58,8 @@ const Screen = (props: ScreenProps): JSX.Element => {
         }
 
         setNewScore("0");
-        dispatch({ type: "add", score: parseInt(newScore) });
+        const parsedInt = parseInt(newScore);
+        dispatch({ type: "add", score: isNaN(parsedInt)? 0: parsedInt });
     };
 
     // Compute frames, activeFrame, and pins remaining fresh during each render
