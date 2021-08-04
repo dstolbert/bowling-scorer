@@ -5,13 +5,16 @@ import Button from './common/button';
 import Title from './common/title';
 import Input from './common/input';
 import Card from './common/card';
-import Frame from './frame'
+import Frame from './frame';
 
 // Styles
-import '../styles/screen.css'
+import '../styles/screen.css';
 
 // Types
-import { Global } from '../global/global'
+import { Global } from '../global/global';
+
+// Utils
+import { parseFrames } from '../utils/bowling';
 
 interface ScreenProps {
     state: Global.State,
@@ -55,86 +58,8 @@ const Screen = (props: ScreenProps): JSX.Element => {
         }
 
         setNewScore("0");
-        dispatch({ type: "add", score: parseInt(newScore, 0) });
+        dispatch({ type: "add", score: parseInt(newScore) });
     };
-
-    // Aggregates raw scores into frame-specific data
-    interface FrameData {
-        frameIndex: number,
-        frameScore: number, // aggregated score across frames
-        scores: Array<number>,
-    };
-
-    const _getDenseFrameData = (frames: Array<FrameData>, index: number): 
-        { totalPins: number, maxN: number, maxScore: number } => {
-
-            // Get current frame data
-            const currFrame = frames[index];
-            const totalPins = currFrame.scores.reduce((s,v) => s+v, 0);
-            const maxN = index === 9 && totalPins > 10? 3: 2;
-            const maxScore = maxN === 2? 10: 30;
-
-            return { totalPins, maxN, maxScore }
-    }
-
-    const parseFrames = (game: Global.Game): 
-        {frames: Array<FrameData>, activeFrame: number, pinsRemaining: number, total: number} => {
-
-        let frames: Array<FrameData> = Array.from(new Array(10), (_, i) => ({ 
-            frameIndex: i,
-            frameScore: -1,
-            scores: [] 
-        }));
-
-        let activeFrame = 0;
-        let runningTotal = 0;
-        for (let i=0; i<game.scores.length; i++) {
-
-            // First we will determine which frame this score belongs to
-            const newPins = game.scores[i];
-
-            // Get current frame data
-            const currFrame = frames[activeFrame];
-            let { totalPins, maxN, maxScore } = _getDenseFrameData(frames, activeFrame);
-
-            // Can this score fit in the current active frame?
-            if ((totalPins >= maxScore || totalPins + newPins > maxScore 
-                || currFrame.scores.length + 1 > maxN) && activeFrame < 9) {
-                activeFrame++;
-            }
-
-            // Add number of pins to the active frame
-            frames[activeFrame].scores.push(newPins);
-            ({ totalPins, maxN, maxScore } = _getDenseFrameData(frames, activeFrame));
-
-            // Update running total and frameScore
-            // If we are on the last frame, we can just append the number of pins
-            if (activeFrame >= 9 || totalPins < 10) {
-                runningTotal += newPins;
-            }
-
-            // If we have a spare (note that frame 10 cant reach here!)
-            else if (frames[activeFrame].scores.length === 2)
-                runningTotal += newPins + (game.scores[i+1] ?? 0);
-
-            // Else it must be a strike
-            else
-                runningTotal += newPins + (game.scores[i+1] ?? 0) + (game.scores[i+2] ?? 0);
-
-            frames[activeFrame].frameScore = runningTotal;
-
-        }
-
-        // Finally, see if the active frame is full and determine the pins remaining
-        const { totalPins, maxN, maxScore } = _getDenseFrameData(frames, activeFrame);
-        let pinsRemaining = Math.min(10, maxScore - totalPins);
-        if (totalPins >= maxScore || frames[activeFrame].scores.length >= maxN) {
-            activeFrame++;
-            pinsRemaining = 10;
-        }
-
-        return { frames, activeFrame, pinsRemaining, total: runningTotal };
-    }
 
     // Compute frames, activeFrame, and pins remaining fresh during each render
     const { frames, activeFrame, pinsRemaining, total } = parseFrames(state.game);
@@ -228,7 +153,6 @@ const Screen = (props: ScreenProps): JSX.Element => {
 
             </div>
         </div>
-
 
     )
 };
