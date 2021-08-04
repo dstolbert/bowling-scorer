@@ -1,0 +1,12 @@
+.card {
+    border-width: 1px; 
+    border-color: black;
+    border-style: solid;
+    padding: 10px
+}
+
+.title {
+    font-size: x-large;
+    font-weight: bolder;
+    font-style: oblique;
+}
