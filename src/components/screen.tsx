@@ -78,7 +78,7 @@ const Screen = (props: ScreenProps): JSX.Element => {
     }
 
     const parseFrames = (game: Global.Game): 
-        {frames: Array<FrameData>, activeFrame: number, pinsRemaining: number} => {
+        {frames: Array<FrameData>, activeFrame: number, pinsRemaining: number, total: number} => {
 
         let frames: Array<FrameData> = Array.from(new Array(10), (_, i) => ({ 
             frameIndex: i,
