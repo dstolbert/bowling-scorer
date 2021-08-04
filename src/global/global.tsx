@@ -2,20 +2,13 @@ import React from 'react';
 
 // Encapsulate global types
 export declare namespace Global {
-
-    interface Frame {
-
-        // An array of int representing the bowl attempts.
-        // This should usually be max of length 2, excepct frame 10 where it can 
-        // be up to length 3
-        scores: Array<number>
-    }
-
     interface Game {
 
         name: string,
-        frames: Array<Frame>,
-        isComplete: boolean
+        scores: Array<number>,
+        isComplete: boolean,
+        activeFrame: number,
+        pinsRemaining: number
 
     }
 

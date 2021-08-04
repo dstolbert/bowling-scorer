@@ -15,10 +15,10 @@ const getInitialState = (): Global.State => ({
   // Init game
   game: {
     name: "Earl Roderick Anthony",
-    frames: Array.from(new Array(10),(val,index) => ({
-      scores: []
-     })),
-    isComplete: false
+    scores: [],
+    isComplete: false,
+    activeFrame: 0,
+    pinsRemaining: 10
   }
 
 });
@@ -39,38 +39,70 @@ const reducer = (state: Global.State, action: Global.Action): Global.State => {
       // Write to a fresh game object
       let newGame: Global.Game = {
         name: state.game.name,
-        frames: [],
+        scores: [],
         isComplete: false,
+        activeFrame: 0,
+        pinsRemaining: 10
       }
       
-      // Iterate over all frames until we find the last added score
-      let addedScore = false;
-      for (let i=0; i<state.game.frames.length; i++) {
+      // Ensure we can legally add the score and check if the game is over
+      let frame = {
+        index: 0,  // frame index (0 -> 9)
+        score: 0, // aggregated score on the frame
+        maxScore: 10, // maximum possible score (pins) on this frame
+        n: 0, // current number of scores (attempts) on this frame
+        maxN: 2, // possible number of scores (attempts) on this frame
+      };
+      for (let i=0; i<state.game.scores.length + 1; i++) {
 
-        // Get current frame
-        let frame = {
-          scores: [...state.game.frames[i].scores]
-        };
+        const currScore = state.game.scores[i] ?? action.score;
 
-        // Get total of any existing scores in the frame
-        const total = frame.scores.reduce((s,v) => s+v, 0);
+        // Can the score fit on this frame?
+        if (frame.score + currScore < frame.maxScore && frame.n + 1 <= frame.maxN) {
 
-        // Determine the number of scores available for this frame
-        let maxScores = i === 9 && total >= 10? 3: 2;
+          // Update current frame
+          frame.score += currScore;
+          frame.n++;
 
-        // If we are here for the first time, we can append the new score
-        if (!addedScore && !(total >= 10 || frame.scores.length >= maxScores)) {
-          frame.scores.push(action.score);
-          addedScore = true;
+          // If we are on the 10th frame and just scored a spare/strike, update frame
+          if (frame.index === 9 && frame.score >= 10) {
+
+            frame.maxScore = 30;
+            frame.maxN = 3;
+
+          }
+
+          // Update the game. Note: this can allow for > 10 remaining pins in 
+          // the 10th frame, but it's handled by the input :)
+          newGame.scores.push(currScore);
+          newGame.pinsRemaining = frame.maxScore - currScore;
+
         }
 
-        newGame.frames.push(frame);
+        else if (frame.index+1 < 10) {
 
-        // Check if the game is complete
-        if (i === 9 && frame.scores.length >= maxScores)
-          newGame.isComplete = true;
+          // Move the score onto the next frame
+          frame = {
+            index: frame.index++,
+            score: currScore,
+            maxScore: 10,
+            n: 1,
+            maxN: 2
+          }
+
+          // Update the game. Note: this can allow for > 10 remaining pins in 
+          // the 10th frame, but it's handled by the input :)
+          newGame.scores.push(currScore);
+          newGame.pinsRemaining = frame.maxScore - currScore;
+          newGame.activeFrame = frame.index;
+
+        }
 
       }
+
+      // Finally, check if the game is complete!
+      if (frame.index >= 9 && frame.n >= frame.maxN)
+        newGame.isComplete = true;
 
       return { game: newGame };
 

@@ -6,11 +6,8 @@ import Card from './common/card';
 // Styles
 import '../styles/screen.css'
 
-// Types
-import { Global } from '../global/global'
-
 interface FrameProps {
-    frame: Global.Frame,
+    scores: Array<number>,
     frameIndex: number,
     frameScore: number,
     style?: Object
@@ -20,20 +17,20 @@ const Frame = (props: FrameProps): JSX.Element => {
 
     // Create a parsed array of values to display on top row of frame
     let topRow = []
-    const total = props.frame.scores.reduce((s,v) => s+v, 0);
+    const total = props.scores.reduce((s,v) => s+v, 0);
 
     // If strike
-    if (total >= 10 && props.frame.scores.length === 1)
+    if (total >= 10 && props.scores.length === 1)
         topRow = ["X"];
 
     // If spare
-    else if (total >= 10 && props.frame.scores.length > 1)
+    else if (total >= 10 && props.scores.length > 1)
         topRow = ["/"];
 
     // Else parse whatever scores we have
     else 
         for (let i=0; i<(props.frameIndex === 9? 3: 2); i++)
-            topRow.push(i <= props.frame.scores.length - 1? props.frame.scores[i]: " ");
+            topRow.push(i <= props.scores.length - 1? props.scores[i]: " ");
 
     return (
 
