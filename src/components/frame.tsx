@@ -7,11 +7,12 @@ import Card from './common/card';
 import '../styles/screen.css'
 
 // Types
-import { Global } from '../context/global'
+import { Global } from '../global/global'
 
 interface FrameProps {
     frame: Global.Frame,
     frameIndex: number,
+    frameScore: number,
     style?: Object
 }
 
@@ -33,7 +34,6 @@ const Frame = (props: FrameProps): JSX.Element => {
     else 
         for (let i=0; i<(props.frameIndex === 9? 3: 2); i++)
             topRow.push(i <= props.frame.scores.length - 1? props.frame.scores[i]: " ");
-        
 
     return (
 
@@ -52,7 +52,7 @@ const Frame = (props: FrameProps): JSX.Element => {
             }}>
                 {topRow.map((s,i) => 
                 
-                    <div key={i} style={{flexGrow: 1}}>
+                    <div key={i} style={{flexGrow: 1, height: '20px'}}>
                         {s}
                     </div>
                 
@@ -61,8 +61,8 @@ const Frame = (props: FrameProps): JSX.Element => {
             </div>
 
             {/* Show the total frame score below */}
-            <div>
-                {props.frame.frameScore}
+            <div style={{height: '20px'}}>
+                {props.frameScore}
             </div>
 
             </>
